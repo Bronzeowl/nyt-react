@@ -1,63 +1,95 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router';
+import React from "react";
 
-class Main extends Component {
-    constructor(props) {
-        super(props);
+// Import sub-components
+import Search from "./children/Search";
+import Results from "./children/Results";
+import Saved from "./children/Saved";
 
-        // keep track of search results in this component to maintain results up in Results component
-        this.state = {
-            searchResults: [],
-            currentSearch: ''
-        };
 
-        this.setSearchResults = this.setSearchResults.bind(this);
-        this.setCurrentSearch = this.setCurrentSearch.bind(this);
+// Helper Function
+import helpers from "./utils/helpers";
+
+class Main extends React.Component {
+
+  constructor(props) {
+
+    super(props);
+
+    this.state = {
+      searchTerm: "",
+      results: ""
+    };
+
+    this.setTerm = this.setTerm.bind(this);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+
+    if (prevState.searchTerm !== this.state.searchTerm) {
+      console.log("UPDATED");
+
+      helpers.runQuery(this.state.searchTerm).then((data) => {
+        if (data !== this.state.results) {
+          console.log(data);
+
+          this.setState({ results: data });
+        }
+      });
     }
+  }
 
-    // this method is passed on to children components to maintain search results visible
-    setSearchResults(results) {
-        this.setState({
-            searchResults: results
-        });
-    }
+  setTerm(term) {
+    this.setState({
+      searchTerm: term
+    });
+  }
 
-    setCurrentSearch(currentSearch) {
-        this.setState({
-            currentSearch: currentSearch
-        });
-    }
+  render() {
 
-    render() {
-        // Use this to pass props on to this.props.children
-        const childrenWithProps = React.Children.map(this.props.children,
-            (child) => React.cloneElement(child, {
-                setSearchResults: this.setSearchResults,
-                setCurrentSearch: this.setCurrentSearch,
-                searchResults: this.state.searchResults,
-                currentSearch: this.state.currentSearch
-            })
-        );
+    return (
 
-        return (
-            <div>
-                <nav className="navbar navbar-default">
-                    <div className="container-fluid">
-                        <div className="navbar-header">
-                            <Link to="/search"><button className="navbar-brand btn btn-link">NYT Article Scrubber</button></Link>
-                        </div>
+      <div className="container">
+        <div className="row">
+          <div className="jumbotron">
+            <h2 className="text-center">New York Times Article Scrubber</h2>
+            <p className="text-center">
+              Search for and annotate articles of interest
+            </p>
+          </div>
+       
+        <div className="row">
+          <div className="col-md-12">
 
-                        <ul className="nav navbar-nav navbar-right">
-                            <li><Link to="/search"><button className="btn btn-link btn-xs">Search</button></Link></li>
-                            <li><Link to="/saved"><button className="btn btn-link btn-xs">Saved</button></Link></li>
-                        </ul>
-                    </div>
-                </nav>
+           <Search setTerm={this.setTerm} />
 
-                {childrenWithProps}
-            </div>
-        );
-    }
+          </div>
+          </div>
+
+
+           <div className="row">
+          <div className="col-md-12">
+
+            <Results address={this.state.search} />
+
+          </div>
+          </div>
+       
+       
+        <div className="row">
+          <div className="col-md-12">
+
+            <Saved setTerm={this.setTerm} />
+
+          </div>
+          </div>
+   
+
+        </div>
+
+      </div>
+    );
+  }
 }
 
-module.exports = Main;
+// Export the componen back for use in other files
+export default Main;

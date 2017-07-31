@@ -1,8 +1,4 @@
-.form-group.required .required-field:after {
-    content: "*";
-    color: red;
-}
+p.text-center{
+    text-decoration: underline;
 
-.date-display {
-    color: #777
 }
